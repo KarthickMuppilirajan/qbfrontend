@@ -40,8 +40,9 @@ jobs:
             sudo npm install 
             sudo npm install -g pm2
             sudo npm run build
+            sudo bash /frontend/frontend.sh
             sudo chown -R ubuntu:ubuntu /var/www/html
-            pm2 start npm #added local IP address
+            npm run start &
 
     #   - name: PR Status
     #     if: github.event.pull_request.merged == true
