@@ -1,0 +1,49 @@
+name: proxy-CI-integration
+
+# Trigger deployment only on push to master branch
+on:
+    push:
+    # pull_request:
+      branches:
+        - main
+    #   types:
+    #     - closed
+
+jobs:
+  deploy:
+    name: Deploy to EC2 on master branch push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the files
+        uses: actions/checkout@v2
+
+      - name: Deploy to Server 1
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.STAGING_HOST_DNS }}
+          REMOTE_USER: ${{ secrets.STAGING_USERNAME }}
+          TARGET: ${{ secrets.STAGING_TARGET_DIR }}
+
+      - name: SSH into EC2 and Run Script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.STAGING_HOST_DNS }}  
+          username: ${{ secrets.STAGING_USERNAME }}  
+          key: ${{ secrets.STAGING_EC2_SSH_KEY}}  
+          script: |
+            cd /var/www/html
+            sudo chown -R ubuntu:ubuntu /var/www/html
+            ls -ll
+            pwd
+            sudo npm install 
+            sudo npm install -g pm2
+            sudo npm run build
+            sudo chown -R ubuntu:ubuntu /var/www/html
+            pm2 start npm #added local IP address
+
+    #   - name: PR Status
+    #     if: github.event.pull_request.merged == true
+    #     run: |
+    #       echo "Pull request merged! PR Name: ${{ github.event.pull_request.title }}"
