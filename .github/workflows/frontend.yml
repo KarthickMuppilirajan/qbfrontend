@@ -42,8 +42,11 @@ jobs:
             sudo npm run build
             sudo bash /frontend/frontend.sh
             sudo chown -R ubuntu:ubuntu /var/www/html
-            timeout 5m npm run start
-            npm run start &
+            # timeout 1m npm run start
+            pm2 start npm 
+            # npm run start &
+            sleep 5
+            done
              
 
     #   - name: PR Status
