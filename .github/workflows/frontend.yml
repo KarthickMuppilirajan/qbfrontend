@@ -44,7 +44,7 @@ jobs:
             sudo chown -R ubuntu:ubuntu /var/www/html
             # timeout 1m npm run start
             pm2 start npm 
-            # npm run start &
+            npm run start &
             
              
 
