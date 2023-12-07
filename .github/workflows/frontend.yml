@@ -45,8 +45,7 @@ jobs:
             # timeout 1m npm run start
             pm2 start npm 
             # npm run start &
-            sleep 5
-            done
+            
              
 
     #   - name: PR Status
