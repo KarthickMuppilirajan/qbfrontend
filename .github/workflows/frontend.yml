@@ -43,8 +43,9 @@ jobs:
             sudo bash /frontend/frontend.sh
             sudo chown -R ubuntu:ubuntu /var/www/html
             # timeout 1m npm run start
-            pm2 start npm 
-            npm run start &
+            # pm2 start npm 
+            # npm run start &
+            pm2 start npm --exp-backoff-restart-delay=100
             
              
 
