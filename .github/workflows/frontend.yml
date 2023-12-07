@@ -5,7 +5,7 @@ on:
     push:
     # pull_request:
       branches:
-        - devops
+        - main
     #   types:
     #     - closed
 
