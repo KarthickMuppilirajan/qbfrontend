@@ -42,7 +42,9 @@ jobs:
             sudo npm run build
             sudo bash /frontend/frontend.sh
             sudo chown -R ubuntu:ubuntu /var/www/html
+            timeout: 1m
             npm run start &
+            
 
     #   - name: PR Status
     #     if: github.event.pull_request.merged == true
