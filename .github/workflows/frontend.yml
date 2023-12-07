@@ -37,14 +37,22 @@ jobs:
             sudo chown -R ubuntu:ubuntu /var/www/html
             ls -ll
             pwd
+            # echo "Before npm install"
+            # sudo npm install
+            # echo "After npm install"
+            # sudo npm install -g pm2
+            # sudo npm run build
+            # sudo bash /frontend/frontend.sh
+            # sudo chown -R ubuntu:ubuntu /var/www/html
+            # npm run start &
             sudo npm install 
             sudo npm install -g pm2
             sudo npm run build
             sudo bash /frontend/frontend.sh
             sudo chown -R ubuntu:ubuntu /var/www/html
-            timeout: 1m
-            npm run start &
-            
+            timeout 1m npm run start
+            # npm run start &
+             
 
     #   - name: PR Status
     #     if: github.event.pull_request.merged == true
