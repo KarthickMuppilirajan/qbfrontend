@@ -51,8 +51,8 @@ jobs:
           username: ${{ secrets.QBFRONT_USERNAME }}
           key: ${{ secrets.AWS_PRIVATE_KEY }} 
           script: |
-            sudo docker pull karthimuppilirajan/qbfrontend:latest
-            add docker ps -a
+            sudo docker pull karthickmuppilirajan/qbfrontend:latest
+            sudo docker ps -a
             sudo docker stop qbfrontend
             sudo docker rm qbfrontend
             sudo docker run -d --name qbfrontend -p 80:3000 karthickmuppilirajan/qbfrontend:latest
