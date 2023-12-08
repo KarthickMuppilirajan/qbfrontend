@@ -6,4 +6,4 @@ RUN npm install
 COPY . .
 EXPOSE 3000
 ENV NPM_DEV = $NPM_DEV
-CMD [ "npm", "{{ secrets.NPM_DEV}}" ]
+CMD [ "npm", "{{ secrets.NPM_DEV }}" ]
