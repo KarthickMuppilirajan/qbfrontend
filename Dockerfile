@@ -6,4 +6,4 @@ RUN npm install
 COPY . .
 EXPOSE 3000
 ENV NPM_DEV=$NPM_DEV
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:dev"]
