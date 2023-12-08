@@ -6,6 +6,6 @@
     "start:dev": "node app.js"
     },
     "dependencies": {
-    "express": "⁴.17.1"
+    "express": "*"
     }
    }
