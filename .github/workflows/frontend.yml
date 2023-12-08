@@ -40,16 +40,16 @@ jobs:
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_TOKEN }}
-      - name: Set permissions for private key
-        run: |
-          echo "${{ secrets.AWS_PRIVATE_KEY }}" | base64 -d > key.pem
-          chmod 600 key.pem
+      # - name: Set permissions for private key
+      #   run: |
+      #     echo "${{ secrets.AWS_PRIVATE_KEY }}" | base64 -d > key.pem
+      #     chmod 600 key.pem
       - name: SSH into EC2 and Run Script
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.QBFRONT_HOST_DNS }}
           username: ${{ secrets.QBFRONT_USERNAME }}
-          key: ./key.pem  
+          key: ${{ secrets.AWS_PRIVATE_KEY }} 
           script: |
             sudo docker pull karthimuppilirajan/qbfrontend:latest
             sudo docker stop qbfrontend
