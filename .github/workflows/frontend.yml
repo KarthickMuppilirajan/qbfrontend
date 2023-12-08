@@ -42,13 +42,26 @@ jobs:
       run: |
         echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
         chmod 600 key.pem
-    - name: Pull Docker image
-      run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem sudo ubuntu@3.28.132.85 'sudo docker pull karthickmuppilirajan/qbfrontend:latest'
-    - name: Stop running container
-      run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem sudo ubuntu@3.28.132.85 'sudo docker stop qbfrontend || true'
-        ssh -o StrictHostKeyChecking=no -i key.pem sudo ubuntu@3.28.132.85 'sudo docker rm qbfrontend || true'
-    - name: Run new container
-      run: |
-        ssh -o StrictHostKeyChecking=no -i key.pem sudo ubuntu@3.28.132.85 'sudo docker run -d --name qbfrontend -p 80:3000 karthickmuppilirajan/qbfrontend:latest'
+     - name: SSH into EC2 and Run Script
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.QBFRONT_HOST_DNS }}  
+          username: ${{ secrets.QBFRONT_USERNAME }}  
+          key: ${{ secrets.AWS_PRIVATE_KEY}}  
+          script: |
+            sudo docker pull karthimuppilirajan/qbfrontend:latest
+            sudo docker stop qbfrontend
+            sudo docker rm qbfrontend
+            sudo docker run -d --name qbfrontend -p 80:3000 karthickmuppilirajan/qbfrontend:latest
+            
+          
+    # - name: Pull Docker image
+    #   run: |
+    #     ssh -o StrictHostKeyChecking=no -i key.pem sudo ubuntu@3.28.132.85 'sudo docker pull karthickmuppilirajan/qbfrontend:latest'
+    # - name: Stop running container
+    #   run: |
+    #     ssh -o StrictHostKeyChecking=no -i key.pem sudo ubuntu@3.28.132.85 'sudo docker stop qbfrontend || true'
+    #     ssh -o StrictHostKeyChecking=no -i key.pem sudo ubuntu@3.28.132.85 'sudo docker rm qbfrontend || true'
+    # - name: Run new container
+    #   run: |
+    #     ssh -o StrictHostKeyChecking=no -i key.pem sudo ubuntu@3.28.132.85 'sudo docker run -d --name qbfrontend -p 80:3000 karthickmuppilirajan/qbfrontend:latest'
