@@ -1,49 +1,54 @@
-name: proxy-CI-integration
-
-# Trigger deployment only on push to master branch
+name: Build on DockerHub and Deploy to AWS
 on:
-    push:
-    # pull_request:
-      branches:
-        - main
-    #   types:
-    #     - closed
-
+  push:
+    branches:
+      - qubitsfrontend
+env:
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
 jobs:
-  deploy:
-    name: Deploy to EC2 on master branch push
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout the files
+      - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Deploy to Server 1
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.STAGING_EC2_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.STAGING_HOST_DNS }}
-          REMOTE_USER: ${{ secrets.STAGING_USERNAME }}
-          TARGET: ${{ secrets.STAGING_TARGET_DIR }}
-
-      - name: SSH into EC2 and Run Script
-        uses: appleboy/ssh-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
         with:
-          host: ${{ secrets.STAGING_HOST_DNS }}  
-          username: ${{ secrets.STAGING_USERNAME }}  
-          key: ${{ secrets.STAGING_EC2_SSH_KEY}}  
-          script: |
-            cd /var/www/html
-            sudo chown -R ubuntu:ubuntu /var/www/html
-            ls -ll
-            pwd
-            sudo npm install 
-            sudo npm install -g pm2
-            sudo npm run build
-            sudo chown -R ubuntu:ubuntu /var/www/html
-            sudo bash /frontend/frontend.sh 
-
-    #   - name: PR Status
-    #     if: github.event.pull_request.merged == true
-    #     run: |
-    #       echo "Pull request merged! PR Name: ${{ github.event.pull_request.title }}"
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          push: true
+          Dockerfile: ./Dockerfile
+          tags: your-dockerhub-username/cddemo:latest
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ env.DOCKERHUB_USERNAME }}
+        password: ${{ env.DOCKERHUB_TOKEN }}
+    - name: Set permissions for private key
+      run: |
+        echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
+        chmod 600 key.pem
+    - name: Pull Docker image
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker pull your-dockerhub-username/cddemo:latest'
+    - name: Stop running container
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker stop cddemo || true'
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker rm cddemo || true'
+    - name: Run new container
+      run: |
+        ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@your-ec2-instance-ip 'sudo docker run -d --name cddemo -p 80:3000 your-dockerhub-username/cddemo:latest'
