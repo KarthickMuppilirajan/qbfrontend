@@ -80,8 +80,22 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Determine Current Version
+        id: determine_version
+        run: |
+          # Replace this command with the one that prints the current version of your project
+          current_version=$(echo "1.0.0")
+
+          # Use output variable to pass the current version to the next steps
+          echo "CURRENT_VERSION=${current_version}" >> $GITHUB_ENV
+
       - name: Release Please
-        run: npx release-please
+        id: release
+        run: |
+          # Run release-please with the current version
+          release_version=$(npx release-please --version ${CURRENT_VERSION})
+          echo "RELEASE_VERSION=${release_version}" >> $GITHUB_ENV
+
 
       - name: Set Image Tag
         run: echo "IMAGE_TAG=${{ env.RELEASE_VERSION }}" >> $GITHUB_ENV
