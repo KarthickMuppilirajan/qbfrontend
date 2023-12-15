@@ -62,7 +62,7 @@ name: Release and Push to ECR
 on:
   push:
     branches:
-      - main
+      - qubitsfrontend
 
 jobs:
   release:
