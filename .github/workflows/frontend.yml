@@ -62,7 +62,7 @@ name: Release and Push to ECR
 on:
   push:
     branches:
-      - qubitsfrontend
+      - main
 
 jobs:
   release:
@@ -80,18 +80,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Determine Current Version
-        id: determine_version
-        run: |
-          # Assuming `release-please` determines the version from the commit history
-          current_version=$(npx release-please --dry-run | grep "Current version:" | cut -d ' ' -f 3)
-
-          # Use output variable to pass the current version to the next steps
-          echo "RELEASE_VERSION=${current_version}" >> $GITHUB_ENV
-
       - name: Release Please
         id: release
         uses: google-github-actions/release-please-action@v4
+        with:
+          token: ${{ secrets.PAT }}
 
   build_and_push:
     needs: release
@@ -104,18 +97,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      - name: Get Latest Release Version
+        id: get_release_version
+        run: |
+          # Get the latest release version
+          release_version=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                            "https://api.github.com/repos/${{ github.repository }}/releases/latest" \
+                            | jq -r .tag_name)
+
+          # Use output variable to pass the release version to the next steps
+          echo "RELEASE_VERSION=${release_version}" >> $GITHUB_ENV
+
       - name: Set Image Tag
         run: echo "DOCKER_TAG=${{ env.RELEASE_VERSION }}" >> $GITHUB_ENV
 
       - name: Build and Push Docker Image
         run: |
           docker buildx create --use
-          docker buildx build -t your-ecr-repository:${DOCKER_TAG} .
-          docker tag your-ecr-repository:${DOCKER_TAG} your-account-id.dkr.ecr.your-region.amazonaws.com/your-ecr-repository:${DOCKER_TAG}
-          docker push your-account-id.dkr.ecr.your-region.amazonaws.com/your-ecr-repository:${DOCKER_TAG}
+          docker buildx build -t public.ecr.aws/n9k8h8q2/qubits-cdk:${DOCKER_TAG} .
+          docker tag public.ecr.aws/n9k8h8q2/qubits-cdk:${DOCKER_TAG} public.ecr.aws/n9k8h8q2/qubits-cdk:${DOCKER_TAG}
+          docker push public.ecr.aws/n9k8h8q2/qubits-cdk:${DOCKER_TAG}
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   AWS_REGION: your-region
+
 
