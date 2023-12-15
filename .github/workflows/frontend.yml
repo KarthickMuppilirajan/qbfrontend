@@ -72,6 +72,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Create release-please-config.json
+        run: echo '{"plugins":["@release-please/update-version","@release-please/release-notes-generator","@release-please/changelog"]}' > release-please-config.json
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
