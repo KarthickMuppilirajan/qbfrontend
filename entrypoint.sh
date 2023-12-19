@@ -1,2 +1,2 @@
 #!/bin/bash
-exec npm run start:dev
+exec npm run start:prod
