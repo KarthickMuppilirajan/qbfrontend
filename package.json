@@ -4,6 +4,7 @@
     "description": "Continuous Deployment with GitHub Actions, DockerHub, and AWS EC2 tutorial for beginners",
     "scripts": {
     "start:dev": "node app.js",
+    "start:stage": "node app.js",
     "start:prod": "node app.js"
     },
     "dependencies": {
