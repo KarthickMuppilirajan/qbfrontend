@@ -5,7 +5,7 @@
     "scripts": {
     "start:dev": "node app.js",
     "start:stage": "node app.js",
-    "start:prod": "node app.js"
+    "start:prod": "node prod.js"
     },
     "dependencies": {
     "express": "*"
