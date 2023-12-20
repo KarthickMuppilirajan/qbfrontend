@@ -101,10 +101,10 @@
           run: docker build -t karthickmuppilirajan/qbfrontend:latest .
   
         - name: Tag Docker image with PR version
-          run: docker tag karthickmuppilirajan/qbfrontend:latest karthickmuppilirajan/qbfrontend:${{ env.PR_NUMBER }}
+          run: docker tag karthickmuppilirajan/qbfrontend:latest karthickmuppilirajan/qbfrontend:pr${{ env.PR_NUMBER }}
   
         - name: Push Docker image with PR version tag
-          run: docker push karthickmuppilirajan/qbfrontend:${{ env.PR_NUMBER }}
+          run: docker push karthickmuppilirajan/qbfrontend:pr${{ env.PR_NUMBER }}
   
         - name: Create PR
           uses: peter-evans/create-pull-request@v3
