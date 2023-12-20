@@ -97,8 +97,13 @@
     
         - name: Create branch for PR
           run: |
+            git config --global user.email "veeramani.karthick@fourbends.com"
+            git config --global user.name "karthickmuppilirajan"
             git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }}
             git push origin pr/update-docker-tag-${{ env.PR_NUMBER }}
+          env:
+            GITHUB_TOKEN: ${{ secrets.PAT }}
+          
           
     
         - name: Build Docker image
