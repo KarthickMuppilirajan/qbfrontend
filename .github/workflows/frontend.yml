@@ -90,6 +90,7 @@
             release-type: node
             token: ${{ secrets.PAT }}
             skip-github-release: true
+            skip-github-pull-request: false
             target-branch: qbstaging
   
         - name: Set up Docker Buildx
