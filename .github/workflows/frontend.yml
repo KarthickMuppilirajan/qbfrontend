@@ -100,7 +100,8 @@
             context: ./
             push: true
             Dockerfile: ./Dockerfile
-            tags: karthickmuppilirajan/qbfrontend:${{ env.PR_NUMBER }}
+            tags: |
+              karthickmuppilirajan/qbfrontend:${{ env.PR_NUMBER }}
   
         - name: Create PR
           uses: peter-evans/create-pull-request@v3
