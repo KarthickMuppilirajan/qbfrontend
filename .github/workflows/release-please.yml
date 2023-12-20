@@ -3,7 +3,7 @@ name: release-please
 on:
   push:
     branches:
-      - qubitsfrontend
+      - qubitsfrontendddd
 
 permissions:
   contents: write
