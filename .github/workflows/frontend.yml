@@ -82,6 +82,15 @@
           uses: actions/checkout@v2
           with:
             token: ${{ secrets.PAT }}
+
+        - name: release-please
+          id: release
+          uses: google-github-actions/release-please-action@v4.0.1
+          with:
+            release-type: node
+            token: ${{ secrets.PAT }}
+            skip-github-release: true
+            target-branch: qubitsfrontend
   
         - name: Set up Docker Buildx
           uses: docker/setup-buildx-action@v1
@@ -91,20 +100,34 @@
           with:
             username: ${{ secrets.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
-  
-        - name: Determine PR number
-          id: pr_number
-          run: |
-            echo "PR_NUMBER=$(curl -s -H \"Authorization: Bearer $GITHUB_TOKEN\" -X GET \"https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/pulls\" | jq -r '.[0].number')" >> $GITHUB_ENV
-    
-        - name: Create branch for PR
-          run: |
-            git config --global user.email "veeramani.karthick@fourbends.com"
-            git config --global user.name "karthickmuppilirajan"
-            git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }}
-            git push origin pr/update-docker-tag-${{ env.PR_NUMBER }}
+
+
+        - name: Get PR number
+          id: get-pr-number
+          run: echo "NUMBER=$(echo '${{ steps.release.outputs.pr }}' | jq -r '.number')" >> "$GITHUB_OUTPUT"
+          shell: bash
+        
+        - name: automerge
+          uses: pascalgn/automerge-action@v0.15.6
           env:
-            GITHUB_TOKEN: ${{ secrets.PAT }}
+            GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+            PULL_REQUEST: ${{ steps.get-pr-number.outputs.NUMBER }}
+            MERGE_LABELS: "autorelease: pending"
+    
+  
+        # - name: Determine PR number
+        #   id: pr_number
+        #   run: |
+        #     echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+    
+        # - name: Create branch for PR
+        #   run: |
+        #     git config --global user.email "veeramani.karthick@fourbends.com"
+        #     git config --global user.name "karthickmuppilirajan"
+        #     git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }}
+        #     git push origin pr/update-docker-tag-${{ env.PR_NUMBER }}
+        #   env:
+        #     GITHUB_TOKEN: ${{ secrets.PAT }}
           
           
     
@@ -112,10 +135,10 @@
           run: docker build -t karthickmuppilirajan/qbfrontend:latest .
   
         - name: Tag Docker image with PR version
-          run: docker tag karthickmuppilirajan/qbfrontend:latest karthickmuppilirajan/qbfrontend:pr${{ env.PR_NUMBER }}
+          run: docker tag karthickmuppilirajan/qbfrontend:latest karthickmuppilirajan/qbfrontend:pr${{ steps.get-pr-number.outputs.NUMBER }}
   
         - name: Push Docker image with PR version tag
-          run: docker push karthickmuppilirajan/qbfrontend:pr${{ env.PR_NUMBER }}
+          run: docker push karthickmuppilirajan/qbfrontend:pr${{ steps.get-pr-number.outputs.NUMBER }}
   
         - name: Create PR
           uses: peter-evans/create-pull-request@v3
