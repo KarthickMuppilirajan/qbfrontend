@@ -113,7 +113,7 @@
           env:
             GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
             PULL_REQUEST: ${{ steps.get-pr-number.outputs.NUMBER }}
-            MERGE_LABELS: "autorelease: pending"
+            MERGE_LABELS: "autorelease:pending"
     
   
         # - name: Determine PR number
