@@ -97,8 +97,9 @@
     
         - name: Create branch for PR
           run: |
-            git fetch origin
-            git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }} origin/pr/update-docker-tag-${{ env.PR_NUMBER }}
+            git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }}
+            git push origin pr/update-docker-tag-${{ env.PR_NUMBER }}
+          
     
         - name: Build Docker image
           run: docker build -t karthickmuppilirajan/qbfrontend:latest .
