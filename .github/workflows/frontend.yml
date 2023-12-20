@@ -96,7 +96,9 @@
             echo "PR_NUMBER=$(curl -s -H \"Authorization: Bearer $GITHUB_TOKEN\" -X GET \"https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/pulls\" | jq -r '.[0].number')" >> $GITHUB_ENV
     
         - name: Create branch for PR
-          run: git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }}
+          run: |
+            git fetch origin
+            git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }} origin/pr/update-docker-tag-${{ env.PR_NUMBER }}
     
         - name: Build Docker image
           run: docker build -t karthickmuppilirajan/qbfrontend:latest .
