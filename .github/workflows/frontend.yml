@@ -62,6 +62,9 @@
   name: Create PR and Tag Docker Image
 
   on:
+    push:
+      branches:
+        - qubitsfrontend  # Change this to your main branch
     pull_request:
       types:
         - opened
