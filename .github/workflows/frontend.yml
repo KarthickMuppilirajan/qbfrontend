@@ -86,7 +86,7 @@ jobs:
         run: npm install
 
       - name: Run release-please
-        run: npx release-please
+        run: npx release-please release-pr
 
   create-pr-and-tag-image:
     needs: release-please
