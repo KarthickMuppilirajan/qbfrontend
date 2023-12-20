@@ -90,7 +90,7 @@
             release-type: node
             token: ${{ secrets.PAT }}
             skip-github-release: true
-            target-branch: qubitsfrontend
+            target-branch: qbstaging
   
         - name: Set up Docker Buildx
           uses: docker/setup-buildx-action@v1
@@ -135,20 +135,10 @@
           run: docker build -t karthickmuppilirajan/qbfrontend:latest .
   
         - name: Tag Docker image with PR version
-          run: docker tag karthickmuppilirajan/qbfrontend:latest karthickmuppilirajan/qbfrontend:pr${{ steps.get-pr-number.outputs.NUMBER }}
+          run: docker tag karthickmuppilirajan/qbfrontend:latest karthickmuppilirajan/qbfrontend:${{ steps.get-pr-number.outputs.NUMBER }}
   
         - name: Push Docker image with PR version tag
-          run: docker push karthickmuppilirajan/qbfrontend:pr${{ steps.get-pr-number.outputs.NUMBER }}
-  
-        - name: Create PR
-          uses: peter-evans/create-pull-request@v3
-          with:
-            branch: pr/update-docker-tag-${{ env.PR_NUMBER }}
-            commit-message: "Update Docker image tag to PR-${{ env.PR_NUMBER }}"
-            title: "Update Docker image tag to PR-${{ env.PR_NUMBER }}"
-            labels: "docker"
-            base: qubitsfrontend
-  
+          run: docker push karthickmuppilirajan/qbfrontend:${{ steps.get-pr-number.outputs.NUMBER }}
 
 
 # name: Release and Push to ECR
