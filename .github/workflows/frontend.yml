@@ -92,7 +92,8 @@
   
         - name: Determine PR number
           id: pr_number
-          run: echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          run: |
+            echo "PR_NUMBER=$(curl -s -H \"Authorization: Bearer $GITHUB_TOKEN\" -X GET \"https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/pulls\" | jq -r '.[0].number')" >> $GITHUB_ENV
     
         - name: Create branch for PR
           run: git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }}
