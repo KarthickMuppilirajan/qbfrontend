@@ -1,11 +1,11 @@
 {
     "name": "qbfrontend",
-    "version": "1.0.0",
+    "version": "1.6.0",
     "description": "Continuous Deployment with GitHub Actions, DockerHub, and AWS EC2 tutorial for beginners",
     "scripts": {
-    "start:dev": "node app.js"
+        "start:dev": "node app.js"
     },
     "dependencies": {
-    "express": "*"
+        "express": "*"
     }
-   }
+}
