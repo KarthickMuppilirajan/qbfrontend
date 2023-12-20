@@ -62,9 +62,10 @@
 name: Release Please and Tag Docker Image
 
 on:
-  push:
-    branches:
-      - qubitsfrontend
+  workflow_run:
+    workflows: ["Release Please"]
+    types:
+      - completed
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
