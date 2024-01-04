@@ -65,10 +65,6 @@
     push:
       branches:
         - qubitsfrontend  # Change this to your main branch
-    pull_request:
-      types:
-        - opened
-        - synchronize
   
   env:
     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -93,122 +89,27 @@
             skip-github-pull-request: false
             target-branch: qbstaging
   
-        - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v1
-  
-        - name: Login to DockerHub
+        - name: Checkout code at release tag
+          if: steps.release.outputs.releases_created == 'true'
+          uses: actions/checkout@v2
+          with:
+            ref: ${{ steps.release.outputs.tag_name }}
+    
+        - name: Docker login
           uses: docker/login-action@v1
           with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+             username: ${{ secrets.DOCKER_USERNAME }}
+             password: ${{ secrets.DOCKER_PASSWORD }}
+    
+        - name: Docker build and tag
+          run: |
+            docker build -t your-docker-image-name:${{ steps.release.outputs.tag_name }} .
+            docker push your-docker-image-name:${{ steps.release.outputs.tag_name }}
 
 
-        - name: Get PR number
-          id: get-pr-number
-          run: echo "NUMBER=$(echo '${{ steps.release.outputs.pr }}' | jq -r '.number')" >> "$GITHUB_OUTPUT"
-          shell: bash
-        
-        - name: automerge
-          uses: pascalgn/automerge-action@v0.15.6
-          env:
-            GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-            PULL_REQUEST: ${{ steps.get-pr-number.outputs.NUMBER }}
-            MERGE_LABELS: "autorelease:pending"
+
     
   
-        # - name: Determine PR number
-        #   id: pr_number
-        #   run: |
-        #     echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-    
-        # - name: Create branch for PR
-        #   run: |
-        #     git config --global user.email "veeramani.karthick@fourbends.com"
-        #     git config --global user.name "karthickmuppilirajan"
-        #     git checkout -b pr/update-docker-tag-${{ env.PR_NUMBER }}
-        #     git push origin pr/update-docker-tag-${{ env.PR_NUMBER }}
-        #   env:
-        #     GITHUB_TOKEN: ${{ secrets.PAT }}
-          
-          
-    
-        - name: Build Docker image
-          run: docker build -t karthickmuppilirajan/qbfrontend:latest .
-  
-        - name: Tag Docker image with PR version
-          run: docker tag karthickmuppilirajan/qbfrontend:latest karthickmuppilirajan/qbfrontend:${{ steps.get-pr-number.outputs.NUMBER }}
-  
-        - name: Push Docker image with PR version tag
-          run: docker push karthickmuppilirajan/qbfrontend:${{ steps.get-pr-number.outputs.NUMBER }}
 
-
-# name: Release and Push to ECR
-
-# on:
-#   push:
-#     branches:
-#       - qubitsfrontenddd
-
-# jobs:
-#   release:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v2
-
-#       - name: Create release-please-config.json
-#         run: echo '{"plugins":["@release-please/update-version","@release-please/release-notes-generator","@release-please/changelog"]}' > release-please-config.json
-
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: '14'
-
-#       - name: Install Dependencies
-#         run: npm install
-
-#       - name: Release Please
-#         id: release
-#         uses: google-github-actions/release-please-action@v4
-#         with:
-#           token: ${{ secrets.PAT }}
-
-#   build_and_push:
-#     needs: release
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Checkout Repository
-#         uses: actions/checkout@v2
-
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v1
-
-#       - name: Get Latest Release Version
-#         id: get_release_version
-#         run: |
-#           # Get the latest release version
-#           release_version=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-#                             "https://api.github.com/repos/${{ github.repository }}/releases/latest" \
-#                             | jq -r .tag_name)
-
-#           # Use output variable to pass the release version to the next steps
-#           echo "RELEASE_VERSION=${release_version}" >> $GITHUB_ENV
-
-#       - name: Set Image Tag
-#         run: echo "DOCKER_TAG=${{ env.RELEASE_VERSION }}" >> $GITHUB_ENV
-
-#       - name: Build and Push Docker Image
-#         run: |
-#           docker buildx create --use
-#           docker buildx build -t public.ecr.aws/n9k8h8q2/qubits-cdk:${DOCKER_TAG} .
-#           docker tag public.ecr.aws/n9k8h8q2/qubits-cdk:${DOCKER_TAG} public.ecr.aws/n9k8h8q2/qubits-cdk:${DOCKER_TAG}
-#           docker push public.ecr.aws/n9k8h8q2/qubits-cdk:${DOCKER_TAG}
-
-# env:
-#   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#   AWS_REGION: your-region
 
 
